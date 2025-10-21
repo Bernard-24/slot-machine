@@ -1,3 +1,4 @@
+
         * {
             margin: 0;
             padding: 0;
@@ -17,6 +18,7 @@
         .container {
             max-width: 900px;
             width: 100%;
+            position: relative;
         }
 
         .slot-machine-frame {
@@ -26,6 +28,27 @@
             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5),
                         inset 0 2px 10px rgba(255, 255, 255, 0.3);
             border: 8px solid #b8860b;
+            position: relative;
+        }
+
+        .sound-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #f4d03f;
+            border: 2px solid #d4af37;
+            padding: 10px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .sound-toggle:hover {
+            background: rgba(0, 0, 0, 0.9);
+            box-shadow: 0 0 10px rgba(244, 208, 63, 0.5);
         }
 
         .machine-top {
@@ -309,4 +332,3 @@
             width: 100%;
             margin-bottom: 20px;
         }
-    
