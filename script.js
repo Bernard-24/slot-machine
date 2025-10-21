@@ -1,3 +1,4 @@
+
         const ROWS = 3;
         const COLS = 3;
 
@@ -17,8 +18,88 @@
 
         let balance = 0;
         let isSpinning = false;
+        let soundEnabled = true;
+        let audioContext = null;
+
+        // Initialize audio context on first user interaction
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSpinSound() {
+            if (!soundEnabled || !audioContext) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.5);
+            
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+        }
+
+        function playWinSound() {
+            if (!soundEnabled || !audioContext) return;
+            
+            const notes = [523.25, 587.33, 659.25, 783.99, 880.00];
+            const noteDuration = 0.15;
+            
+            notes.forEach((frequency, index) => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                oscillator.type = 'sine';
+                
+                const startTime = audioContext.currentTime + (index * noteDuration);
+                gainNode.gain.setValueAtTime(0.2, startTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + noteDuration);
+                
+                oscillator.start(startTime);
+                oscillator.stop(startTime + noteDuration);
+            });
+        }
+
+        function playTickSound() {
+            if (!soundEnabled || !audioContext) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            oscillator.type = 'square';
+            
+            gainNode.gain.setValueAtTime(0.05, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.05);
+        }
+
+        function toggleSound() {
+            initAudio();
+            soundEnabled = !soundEnabled;
+            const toggleBtn = document.getElementById('soundToggle');
+            toggleBtn.textContent = soundEnabled ? '🔊 Sound ON' : '🔇 Sound OFF';
+        }
 
         function startGame() {
+            initAudio();
             const depositInput = document.getElementById('depositInput');
             const depositAmount = parseFloat(depositInput.value);
 
@@ -142,7 +223,8 @@
             document.getElementById('balance').textContent = balance.toFixed(2);
             document.getElementById('message').textContent = '';
 
-            // Spinning animation
+            playSpinSound();
+
             const reelElements = document.querySelectorAll('.reel');
             const symbols = ['A', 'B', 'C', 'D'];
             
@@ -150,11 +232,15 @@
                 reel.classList.add('spinning');
             });
 
-            // Simulate spinning with random symbols
+            let tickCount = 0;
             const spinInterval = setInterval(() => {
                 reelElements.forEach(reel => {
                     reel.textContent = symbols[Math.floor(Math.random() * symbols.length)];
                 });
+                if (tickCount % 2 === 0) {
+                    playTickSound();
+                }
+                tickCount++;
             }, 50);
 
             await new Promise(resolve => setTimeout(resolve, 1500));
@@ -171,6 +257,7 @@
             document.getElementById('balance').textContent = balance.toFixed(2);
 
             if (winnings > 0) {
+                playWinSound();
                 showMessage('🎉 WINNER! YOU WON $' + winnings.toFixed(2) + '! 🎉', 'win');
             } else {
                 showMessage('No win this time. Try again!', 'lose');
@@ -203,4 +290,11 @@
             document.querySelector('.game-screen').classList.remove('active');
             document.querySelector('.setup-screen').classList.add('active');
         }
+
+        // Event Listeners
+        document.getElementById('soundToggle').addEventListener('click', toggleSound);
+        document.getElementById('startButton').addEventListener('click', startGame);
+        document.getElementById('spinButton').addEventListener('click', spinSlots);
+        document.getElementById('cashOutButton').addEventListener('click', resetGame);
+        document.getElementById('linesSelect').addEventListener('change', updateLineIndicators);
     

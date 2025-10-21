@@ -7,6 +7,7 @@ Players can deposit credits, choose lines, set bets, and spin the reels to test 
 
 ## 🌍 Live Demo
 🔗 [Play Now]( https://bernard-24.github.io/slot-machine/)  
+*(Replace `<your-repo-name>` with your repository’s name.)*
 
 ---
 
